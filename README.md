@@ -1,0 +1,217 @@
+# Hot Dog
+
+A browser game about a dog climbing two mountains, dodging steam vents, and
+collecting hot dogs on the way to a trophy and a red cape.
+
+---
+
+## The game
+
+Two mountains stand side by side with a valley between them. Ledges jut out of
+the facing walls in pairs - a left one and a right one at every height. The dog
+starts at the bottom and climbs by jumping from ledge to ledge.
+
+**Every jump goes up exactly one level. The arrow keys choose which side you
+land on.** That is the whole game: look at the pair of ledges above you, work out
+which one is about to erupt, and jump to the other one.
+
+Clouds hang below the ledges. Some are decorative and harmless. Others are
+vents, and they run a four-stage cycle:
+
+```
+IDLE --> BUILDUP --> BURST --> COOLDOWN --> IDLE
+        (telegraph)  (lethal)   (safe)      (safe)
+```
+
+The **BUILDUP** stage is your only warning - the cloud glows and a small flame
+grows out of it before the real eruption. A rung never has vents on *both* sides,
+so there is always a safe line up the mountain.
+
+### Getting better, and getting worse
+
+Every ledge you reach earns a hot dog, and hot dogs make the dog more **agile**:
+
+- **Jumps get faster** - 560 ms when sluggish, down to 200 ms at full agility.
+- **Reactions get sharper** - an agile dog can stand in a live burst for up to
+  260 ms and still hop clear. A sluggish one has 60 ms.
+- **The animation plays harder** - more stretch, more lean into the arc.
+
+Dodge a burst by a hair and you get an **escape bonus** of 3 hot dogs.
+
+Get caught and it runs the other way: you lose agility, drop two rungs, and
+become easier to hit next time. That downward spiral is intentional, but it has
+a floor and there are no lives - a bad run costs you time, not the game.
+
+Reach the top and the dog gets a trophy and a red cape.
+
+### Controls
+
+| Input | Action |
+| --- | --- |
+| `Left` `Right` | Jump to the left or right ledge of the next rung up |
+| `Enter` / `Space` | Start, or play again |
+| `Esc` / `P` | Pause |
+| `R` | Restart |
+| `M` | Mute |
+| `` ` `` | Debug overlay |
+| `[` `]` | Nudge the speed slider |
+| Click / tap | Jump toward that side of the screen |
+
+The **speed slider** sets difficulty. It only changes how often vents fire - it
+never touches jump speed or input handling, so the controls feel identical at
+every setting. Adjust it any time, including mid-run.
+
+Add `?seed=12345` to the URL to replay an exact climb.
+
+---
+
+## Running it
+
+You need **Python 3** (any static file server works - Python is just what the
+scripts use). No install step, no dependencies to download.
+
+```bash
+npm start
+# then open http://localhost:8080
+```
+
+> **`python` vs `python3`:** the npm scripts call `python`, which is how it is
+> named on Windows. Most Linux and macOS systems (including WSL) only provide
+> `python3`, and `npm start` fails there with `python: not found`. Either use the
+> direct commands below, or alias it - `alias python=python3`.
+
+Without npm, on any platform:
+
+```bash
+python3 -m http.server 8080                    # serve the game
+python3 tools/slice.py && python3 tools/derive.py && python3 tools/pack.py
+python3 tools/preview.py
+```
+
+> **`index.html` will not work if you open it directly.** Browsers block ES
+> modules and `fetch` over `file://`, so the page needs to be served over HTTP.
+> The page detects this and tells you, rather than showing a blank canvas.
+
+### Other commands
+
+```bash
+npm test           # 17 simulation tests, plain node, no framework
+npm run assets     # rebuild every asset from images/
+npm run preview    # render build/preview_game.png
+```
+
+`npm test` needs only Node. The two asset commands additionally need **Pillow**
+and **SciPy** - playing the game does not, since `assets/` is already built:
+
+```bash
+pip install pillow scipy
+```
+
+---
+
+## Technology
+
+**Vanilla JavaScript, ES modules, Canvas 2D. No framework, no build step, zero
+runtime dependencies.**
+
+The game is one level, sprite-based, with no real physics - jumps are parabolic
+tweens between two known points and collision is a slot lookup. Phaser or PixiJS
+would have added ~1 MB and a build config to supply a scene manager and tween
+library that this needs about 100 lines of.
+
+- **Fixed-timestep loop** (60 Hz accumulator) so vent timing and the speed slider
+  behave identically on a 60 Hz laptop and a 144 Hz monitor.
+- **Fixed logical resolution** of 960x640, letterboxed and scaled via CSS. All
+  game maths is in logical pixels.
+- **Seeded RNG** (mulberry32) so any climb is reproducible.
+- **Procedural audio** - every sound effect is synthesised in WebAudio at
+  runtime, so the project ships no audio files.
+
+### Asset pipeline - Python 3, Pillow, SciPy
+
+The source art is composite illustration sheets, not game-ready atlases, so
+`assets/` is generated:
+
+| Stage | Script | What it does |
+| --- | --- | --- |
+| Cut | `tools/slice.py` | Hand-declared rects -> alpha-trimmed sprites |
+| Derive | `tools/derive.py` | Everything the sheets don't contain: the vent animation ramp, parallax layers, the tiling rock wall, ledges |
+| Pack | `tools/pack.py` | All sprites -> one atlas + `atlas.json` with anchors |
+| Verify | `tools/preview.py` | Static composite render at true resolution |
+
+Two clean builds produce **byte-identical** output, so re-exported art re-cuts in
+one command with no drift.
+
+### Layout
+
+```
+index.html          canvas, letterbox CSS, file:// guard
+src/
+  config.js         every tunable constant, one file
+  core/             loop, input, asset/atlas loading, seeded RNG, audio
+  game/             SIMULATION - no canvas, no DOM anywhere
+  render/           PRESENTATION - reads world state, never mutates it
+assets/             BUILD OUTPUT - never hand-edit
+images/             SOURCE ART - the only irreplaceable directory
+tools/              the asset pipeline
+tests/              headless simulation tests
+```
+
+The `game/` and `render/` split is strict: the simulation steps with no renderer
+attached, and there is a test asserting it runs with `document` undefined. That
+is what makes the logic testable without a browser.
+
+---
+
+## Working on it
+
+**Never hand-edit `assets/`.** It is build output - change the tools and re-run
+`npm run assets`.
+
+**`images/` is the only irreplaceable directory in the project.** Everything else
+can be regenerated or is under your editor's history. Back it up somewhere
+outside this folder; there is no version control here yet.
+
+### The one rule that keeps the game fair
+
+The vent telegraph must always last longer than the dog's slowest possible jump:
+
+```
+buildupMs / speedScale  >  jumpMsFor(agility)
+```
+
+If it doesn't, the dog is committed to a jump *before* the warning appears, and
+the game reads as broken rather than hard. Anything that touches jump duration or
+vent cadence has to preserve this. `npm test` sweeps the entire
+speed x agility cross-product, and the debug overlay (`` ` ``) shows the live
+margin while you play.
+
+### Where things stand
+
+Playable end to end: menu, climb, vents, damage, progression, summit, audio.
+Roughly 1,500 lines of JavaScript across 14 modules, 17 tests, and a four-stage
+asset pipeline.
+
+The remaining work is **difficulty tuning**, which needs a human playing it
+rather than an assertion. Everything up to this point could be verified by test
+or by screenshot; whether the game is *fun* cannot.
+
+Open decisions, all cheap to change:
+
+1. **Lives, or knockback only?** Currently knockback only - failure means never
+   reaching the top. Recommend keeping it.
+2. **Run length.** 30 rungs, ~60-90 seconds at default speed.
+3. **Difficulty curve.** `slotWeights` is a flat 35/30/35 empty/inert/vent for
+   the whole climb. Ramping vent density with height would give the climb a
+   curve instead of a constant texture.
+4. **Art upgrades.** The foreground parallax layer and the jump animation both
+   derive from shipped art and work well; hand-drawn versions would be better.
+5. **Audio.** Synthesised. Real samples and a music loop drop in behind the
+   existing `play(name)` interface.
+
+---
+
+## Credits
+
+Art generated with AI and supplied as sprite sheets; everything in `assets/` is
+cut or derived from those sheets by the pipeline in `tools/`.

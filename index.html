@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+<title>Hot Dog</title>
+<style>
+  :root { color-scheme: dark; }
+  html, body {
+    margin: 0; height: 100%;
+    background: #0a0e16;
+    display: grid; place-items: center;
+    overflow: hidden;
+    font-family: system-ui, -apple-system, sans-serif;
+  }
+  #game {
+    display: block;
+    image-rendering: auto;
+    border-radius: 10px;
+    box-shadow: 0 18px 60px rgba(0,0,0,.6);
+    touch-action: none;
+  }
+  #boot {
+    position: fixed; inset: 0; display: grid; place-items: center;
+    color: #93a2ba; font-size: 15px; text-align: center; padding: 24px;
+  }
+  #boot code {
+    color: #ffd24a; background: #131a28;
+    padding: 2px 7px; border-radius: 5px;
+  }
+</style>
+</head>
+<body>
+  <div id="boot">loading assets...</div>
+  <canvas id="game" width="960" height="640" hidden></canvas>
+
+  <script type="module">
+    const boot = document.getElementById('boot');
+    try {
+      await import('./src/main.js');
+      boot.remove();
+      document.getElementById('game').hidden = false;
+    } catch (err) {
+      console.error(err);
+      // The most common failure by far: opened via file://, where ES modules
+      // and fetch() are blocked by CORS. Say so instead of showing a blank page.
+      const viaFile = location.protocol === 'file:';
+      boot.innerHTML = viaFile
+        ? 'This game needs to be served over HTTP - <code>file://</code> blocks ES modules.<br><br>' +
+          'Run <code>python3 -m http.server 8080</code> in the project folder,<br>' +
+          'then open <code>http://localhost:8080</code>'
+        : `Failed to start: ${err.message}<br><br>` +
+          'If assets are missing, run <code>python3 tools/slice.py &amp;&amp; ' +
+          'python3 tools/derive.py &amp;&amp; python3 tools/pack.py</code>';
+    }
+  </script>
+</body>
+</html>

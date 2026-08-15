@@ -1,0 +1,12 @@
+{
+  "name": "hot-dog",
+  "version": "0.1.0",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "start": "python -m http.server 8080",
+    "test": "node tests/sim.test.mjs",
+    "assets": "python tools/slice.py && python tools/derive.py && python tools/pack.py",
+    "preview": "python tools/preview.py"
+  }
+}
