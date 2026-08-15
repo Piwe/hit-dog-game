@@ -6,13 +6,17 @@ import { startLoop } from './core/loop.js';
 import { createInput } from './core/input.js';
 import {
   initAudio, resumeAudio, play, setMuted, isMuted, preloadAudio, startMusic,
-  audioStatus,
+  audioStatus, preloadCommentary,
 } from './core/audio.js';
 import {
   createWorld, resetWorld, step, drainEvents, requestJump, setSpeed, STATE,
 } from './game/world.js';
 import { renderScene, stepFx, addPop, toScreenY } from './render/scene.js';
 import { resetDogAnim } from './render/dogAnim.js';
+import {
+  setCommentary, stepCommentary, resetCommentary, hasCommentary, currentCaption,
+  commentaryStatus,
+} from './core/commentator.js';
 import { renderHud, RECT, hitRect, sliderValueFromX } from './render/hud.js';
 import { dogPos } from './game/dog.js';
 
@@ -48,6 +52,7 @@ function startRun() {
   } else if (world.state === STATE.SUMMIT) {
     resetWorld(world);
     resetDogAnim();
+    resetCommentary();
     world.state = STATE.PLAYING;
   }
 }
@@ -61,6 +66,9 @@ const assets = await loadAssets();
 // Generated audio is optional: if tools/audio_gen.py has not been run, this
 // resolves to zero samples and every cue falls back to synthesis.
 const audioInfo = await preloadAudio();
+// The commentator is optional too: with no commentary.json it stays silent,
+// and with lines but no clips it captions them instead of speaking.
+setCommentary(await preloadCommentary());
 
 const input = createInput(canvas, {
   jump(side) {
@@ -76,6 +84,7 @@ const input = createInput(canvas, {
   restart() {
     resetWorld(world);
     resetDogAnim();
+    resetCommentary();
     world.state = STATE.PLAYING;
   },
   debug() { showDebug = !showDebug; },
@@ -111,8 +120,8 @@ window.addEventListener('blur', () => {
   if (world.state === STATE.PLAYING) world.state = STATE.PAUSED;
 });
 
-function handleEvents() {
-  for (const ev of drainEvents(world)) {
+function handleEvents(events) {
+  for (const ev of events) {
     const p = dogPos(world.dog);
     const sx = p.x;
     const sy = toScreenY(p.y, world.camY) - 70;
@@ -156,7 +165,10 @@ startLoop({
     step(world, dt);
     stepFx(dt, world);
     ambientAudio(dt);
-    handleEvents();
+    // Drain once and share: the commentator needs the same events as the SFX.
+    const events = drainEvents(world);
+    handleEvents(events);
+    stepCommentary(world, events, dt);
   },
   render(_alpha, stats) {
     ctx.fillStyle = '#0a0e16';
@@ -167,4 +179,6 @@ startLoop({
 });
 
 // handy for poking at a live run from the console
-window.__hotdog = { world, assets, CFG, audioInfo, audioStatus };
+window.__hotdog = {
+  world, assets, CFG, audioInfo, audioStatus, hasCommentary, currentCaption, commentaryStatus,
+};

@@ -199,3 +199,74 @@ export const audioStatus = () => ({
   decoded: buffers.size,
   music: !!musicSource,
 });
+
+// ---------------------------------------------------------------------------
+// Commentator voice-over
+// ---------------------------------------------------------------------------
+
+/**
+ * Load the commentary bank. Clips are optional: a line with `file: null` still
+ * returns in the manifest so the game can caption it, which is what makes the
+ * commentator work with no ElevenLabs key.
+ */
+export async function preloadCommentary() {
+  let manifest;
+  try {
+    const r = await fetch(AUDIO_BASE + 'commentary.json');
+    if (!r.ok) return null;
+    manifest = await r.json();
+  } catch (_) {
+    return null;
+  }
+
+  const jobs = [];
+  for (const [cat, lines] of Object.entries(manifest.categories || {})) {
+    lines.forEach((line, i) => {
+      if (!line.file) return;
+      jobs.push((async () => {
+        try {
+          const r = await fetch(AUDIO_BASE + line.file);
+          if (r.ok) raw.set(`vo:${cat}:${i}`, await r.arrayBuffer());
+        } catch (_) { /* caption-only for this line */ }
+      })());
+    });
+  }
+  await Promise.all(jobs);
+  if (ctx) decodePending();
+  return manifest;
+}
+
+/** Seconds of a decoded voice clip, or 0 if it never loaded. */
+export function voiceDuration(key) {
+  const buf = buffers.get(key);
+  return buf ? buf.duration : 0;
+}
+
+/**
+ * Speak a line, ducking the music under it. Returns true if audio played;
+ * false means caption-only, which is a normal state, not a failure.
+ */
+export function playVoice(key) {
+  if (!ctx || !enabled) return false;
+  const buf = buffers.get(key);
+  if (!buf) return false;
+
+  if (musicGain) {
+    // duck rather than pause: the bed should dip, not disappear
+    const now = ctx.currentTime;
+    musicGain.gain.cancelScheduledValues(now);
+    musicGain.gain.setValueAtTime(musicGain.gain.value, now);
+    musicGain.gain.linearRampToValueAtTime(0.07, now + 0.12);
+    musicGain.gain.setValueAtTime(0.07, now + buf.duration);
+    musicGain.gain.linearRampToValueAtTime(0.24, now + buf.duration + 0.35);
+  }
+
+  const src = ctx.createBufferSource();
+  src.buffer = buf;
+  const g = ctx.createGain();
+  g.gain.value = 1.25;        // voice sits above the SFX bus so it stays clear
+  src.connect(g);
+  g.connect(master);
+  src.start();
+  return true;
+}

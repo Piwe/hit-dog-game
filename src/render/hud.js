@@ -4,6 +4,7 @@ import { CFG, clamp, jumpMsFor, graceMsFor } from '../config.js';
 import { drawFrame, frameSize } from '../core/assets.js';
 import { STATE, progress } from '../game/world.js';
 import { isMuted } from '../core/audio.js';
+import { currentCaption, commentaryStatus, hasCommentary } from '../core/commentator.js';
 
 const W = CFG.logicalW;
 const H = CFG.logicalH;
@@ -196,6 +197,31 @@ function drawSummit(ctx, assets, world) {
        { size: 24, align: 'center', fill: '#e9eef7' });
 }
 
+function drawCaption(ctx) {
+  const cap = currentCaption();
+  if (!cap) return;
+  // Fade the last 400ms so lines do not pop out. Sits low-centre, clear of the
+  // dog (~65% screen height) and clear of the HUD along the top.
+  const alpha = Math.min(1, cap.ttl / 400);
+  ctx.save();
+  ctx.globalAlpha = alpha;
+  ctx.font = 'bold 22px system-ui, -apple-system, sans-serif';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  const w = ctx.measureText(cap.text).width + 40;
+  const x = W / 2;
+  const y = H - 74;
+  ctx.fillStyle = 'rgba(10,14,22,0.78)';
+  roundRect(ctx, x - w / 2, y - 22, w, 44, 22);
+  ctx.fill();
+  ctx.strokeStyle = 'rgba(255,210,74,0.55)';
+  ctx.lineWidth = 2;
+  ctx.stroke();
+  ctx.fillStyle = '#ffe9a8';
+  ctx.fillText(cap.text, x, y + 1);
+  ctx.restore();
+}
+
 function drawDebug(ctx, world, stats) {
   const lines = [
     `fps ${stats.fps}  steps ${stats.stepsLastFrame}  frame ${stats.frameMs.toFixed(1)}ms`,
@@ -206,6 +232,12 @@ function drawDebug(ctx, world, stats) {
     `speed ${world.speed.toFixed(2)}x  buildup ${(CFG.vent.buildupMs / world.speed).toFixed(0)}ms`,
     `camY ${world.camY.toFixed(0)}  hotdogs ${world.hotdogs}`,
   ];
+  const c = commentaryStatus();
+  lines.push(hasCommentary()
+    ? `vo ${Object.entries(c.fires).map(([k, v]) => k + ':' + v).join(' ') || '-'}`
+      + `  gap ${c.sinceLine}ms${c.lastSkip ? '  skip ' + c.lastSkip : ''}`
+    : 'vo none (run tools/commentary_gen.py)');
+
   // the invariant that keeps the game fair: the telegraph must outlast the jump
   const margin = CFG.vent.buildupMs / world.speed - jumpMsFor(world.dog.agility);
   lines.push(`telegraph margin ${margin.toFixed(0)}ms ${margin > 0 ? 'OK' : 'UNFAIR'}`);
@@ -238,6 +270,8 @@ export function renderHud(ctx, assets, world, stats, showDebug) {
   if (isMuted()) {
     text(ctx, 'muted (M)', W - 26, H - 18, { size: 14, align: 'right', fill: '#93a2ba' });
   }
+
+  drawCaption(ctx);
 
   if (world.state === STATE.MENU) drawMenu(ctx, assets, world);
   else if (world.state === STATE.PAUSED) drawPaused(ctx, world);

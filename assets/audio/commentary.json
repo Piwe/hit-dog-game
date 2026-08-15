@@ -1,0 +1,165 @@
+{
+  "version": 1,
+  "categories": {
+    "start": [
+      {
+        "text": "Paws on the rock. Here we go.",
+        "file": null
+      },
+      {
+        "text": "Thirty ledges. One very good dog.",
+        "file": null
+      },
+      {
+        "text": "The mountain is awake today.",
+        "file": null
+      },
+      {
+        "text": "Climb time. Mind the steam.",
+        "file": null
+      },
+      {
+        "text": "Let's see what this dog has.",
+        "file": null
+      }
+    ],
+    "escape": [
+      {
+        "text": "Ooh, felt the heat on that one!",
+        "file": null
+      },
+      {
+        "text": "Straight past the steam. Lovely.",
+        "file": null
+      },
+      {
+        "text": "That was all whisker, no burn.",
+        "file": null
+      },
+      {
+        "text": "Read it perfectly. Gone.",
+        "file": null
+      },
+      {
+        "text": "Dodged it by a tail hair.",
+        "file": null
+      },
+      {
+        "text": "The vent blew and the dog was already gone.",
+        "file": null
+      }
+    ],
+    "hit": [
+      {
+        "text": "Right in the steam. Ouch.",
+        "file": null
+      },
+      {
+        "text": "That is going to smart.",
+        "file": null
+      },
+      {
+        "text": "Blasted. Back down we go.",
+        "file": null
+      },
+      {
+        "text": "Walked straight into that one.",
+        "file": null
+      },
+      {
+        "text": "The mountain wins that round.",
+        "file": null
+      },
+      {
+        "text": "Caught by the cloud. Shake it off.",
+        "file": null
+      }
+    ],
+    "streak": [
+      {
+        "text": "Six clean. This dog is flying.",
+        "file": null
+      },
+      {
+        "text": "Not a scorch mark in sight.",
+        "file": null
+      },
+      {
+        "text": "Reading the clouds like a book.",
+        "file": null
+      },
+      {
+        "text": "Untouchable right now.",
+        "file": null
+      },
+      {
+        "text": "Every jump the right jump.",
+        "file": null
+      }
+    ],
+    "half": [
+      {
+        "text": "Halfway. The air gets thin here.",
+        "file": null
+      },
+      {
+        "text": "Fifteen up, fifteen to go.",
+        "file": null
+      },
+      {
+        "text": "Past the midpoint. Steady now.",
+        "file": null
+      }
+    ],
+    "near": [
+      {
+        "text": "Summit in sight. Don't rush it.",
+        "file": null
+      },
+      {
+        "text": "So close. This is where it hurts.",
+        "file": null
+      },
+      {
+        "text": "Five to go. Breathe.",
+        "file": null
+      }
+    ],
+    "summit": [
+      {
+        "text": "Top of the mountain! What a climb!",
+        "file": null
+      },
+      {
+        "text": "Trophy earned. Cape deserved.",
+        "file": null
+      },
+      {
+        "text": "That dog just conquered the sky.",
+        "file": null
+      },
+      {
+        "text": "Summit! Absolutely magnificent.",
+        "file": null
+      }
+    ],
+    "struggle": [
+      {
+        "text": "Legs are heavy. Take your time.",
+        "file": null
+      },
+      {
+        "text": "Rough patch. Shake it off.",
+        "file": null
+      },
+      {
+        "text": "This mountain is not being kind.",
+        "file": null
+      },
+      {
+        "text": "Slow and steady now.",
+        "file": null
+      }
+    ]
+  }
+}

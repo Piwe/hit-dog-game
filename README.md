@@ -166,6 +166,39 @@ The cue that matters most is `hiss`: it is the audio half of the vent
 telegraph, the warning for players who miss the visual buildup, so its prompt
 asks for a clearly *rising* pitch.
 
+### AI commentator (Gemini + ElevenLabs)
+
+A commentator reacts to your run: near misses, steam blasts, streaks, reaching
+the summit. **Gemini writes the lines, ElevenLabs speaks them, both at build
+time.**
+
+```bash
+python3 tools/commentary_gen.py            # sync text into the game. NO KEY NEEDED.
+python3 tools/commentary_gen.py --lines    # Gemini rewrites the line bank
+python3 tools/commentary_gen.py --voice    # ElevenLabs voices every line
+python3 tools/commentary_gen.py --all      # all three, in order
+```
+
+`tools/commentary_lines.json` is the text source of truth - hand-editable, and
+committed, so you can curate what the commentator says without regenerating.
+Seed lines ship with the repo, which means **the feature works with no API key
+at all**: unvoiced lines display as captions instead of speaking.
+
+The hard part is not the text, it is restraint. A commentator that reacts to
+every jump is unbearable within thirty seconds, so `core/commentator.js`
+enforces:
+
+- a **priority order** (`summit` > `hit` > `escape` > `struggle` > milestones >
+  `streak`), so only the most interesting moment on a tick gets spoken;
+- a **per-priority cooldown**, so quiet moments stay quiet;
+- a **shuffle bag** per category, so a line never repeats until its whole
+  category has been used.
+
+Derived moments (a six-ledge clean streak, halfway, struggling after repeated
+hits) are computed in the commentator, not the simulation - they are commentary,
+not game rules. The debug overlay (`` ` ``) shows which lines have fired, the
+current gap, and what was suppressed and why.
+
 ### Layout
 
 ```
@@ -229,9 +262,10 @@ Open decisions, all cheap to change:
    curve instead of a constant texture.
 4. **Art upgrades.** The foreground parallax layer and the jump animation both
    derive from shipped art and work well; hand-drawn versions would be better.
-5. **Audio.** The ElevenLabs pipeline is built but has not been run - no key
-   yet. Until then every cue uses its synthesised fallback. Run
-   `npm run audio` and the game upgrades itself with no code change.
+5. **AI content is wired but not generated** - no API keys yet. Sound effects
+   use their synthesised fallback and the commentator shows captions instead of
+   speaking. `npm run audio` and `npm run commentary -- --all` upgrade both with
+   no code change.
 
 ---
 

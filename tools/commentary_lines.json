@@ -1,0 +1,58 @@
+{
+  "_comment": "Source of truth for commentator text. Hand-editable. Regenerate with `python3 tools/commentary_gen.py --lines` (Gemini), voice with `--voice` (ElevenLabs). These seed lines ship so the commentator works with no API key at all -- it just shows captions instead of speaking.",
+  "_voice_direction": "An excitable but warm sports commentator calling a dog's mountain climb. Short, punchy, affectionate. Never mean about the dog.",
+  "categories": {
+    "start": [
+      "Paws on the rock. Here we go.",
+      "Thirty ledges. One very good dog.",
+      "The mountain is awake today.",
+      "Climb time. Mind the steam.",
+      "Let's see what this dog has."
+    ],
+    "escape": [
+      "Ooh, felt the heat on that one!",
+      "Straight past the steam. Lovely.",
+      "That was all whisker, no burn.",
+      "Read it perfectly. Gone.",
+      "Dodged it by a tail hair.",
+      "The vent blew and the dog was already gone."
+    ],
+    "hit": [
+      "Right in the steam. Ouch.",
+      "That is going to smart.",
+      "Blasted. Back down we go.",
+      "Walked straight into that one.",
+      "The mountain wins that round.",
+      "Caught by the cloud. Shake it off."
+    ],
+    "streak": [
+      "Six clean. This dog is flying.",
+      "Not a scorch mark in sight.",
+      "Reading the clouds like a book.",
+      "Untouchable right now.",
+      "Every jump the right jump."
+    ],
+    "half": [
+      "Halfway. The air gets thin here.",
+      "Fifteen up, fifteen to go.",
+      "Past the midpoint. Steady now."
+    ],
+    "near": [
+      "Summit in sight. Don't rush it.",
+      "So close. This is where it hurts.",
+      "Five to go. Breathe."
+    ],
+    "summit": [
+      "Top of the mountain! What a climb!",
+      "Trophy earned. Cape deserved.",
+      "That dog just conquered the sky.",
+      "Summit! Absolutely magnificent."
+    ],
+    "struggle": [
+      "Legs are heavy. Take your time.",
+      "Rough patch. Shake it off.",
+      "This mountain is not being kind.",
+      "Slow and steady now."
+    ]
+  }
+}
