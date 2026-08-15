@@ -4,7 +4,10 @@ import { CFG, clamp } from './config.js';
 import { loadAssets } from './core/assets.js';
 import { startLoop } from './core/loop.js';
 import { createInput } from './core/input.js';
-import { initAudio, resumeAudio, play, setMuted, isMuted } from './core/audio.js';
+import {
+  initAudio, resumeAudio, play, setMuted, isMuted, preloadAudio, startMusic,
+  audioStatus,
+} from './core/audio.js';
 import {
   createWorld, resetWorld, step, drainEvents, requestJump, setSpeed, STATE,
 } from './game/world.js';
@@ -39,6 +42,7 @@ let draggingSlider = false;
 function startRun() {
   initAudio();
   resumeAudio();
+  startMusic();
   if (world.state === STATE.MENU) {
     world.state = STATE.PLAYING;
   } else if (world.state === STATE.SUMMIT) {
@@ -54,6 +58,9 @@ function togglePause() {
 }
 
 const assets = await loadAssets();
+// Generated audio is optional: if tools/audio_gen.py has not been run, this
+// resolves to zero samples and every cue falls back to synthesis.
+const audioInfo = await preloadAudio();
 
 const input = createInput(canvas, {
   jump(side) {
@@ -160,4 +167,4 @@ startLoop({
 });
 
 // handy for poking at a live run from the console
-window.__hotdog = { world, assets, CFG };
+window.__hotdog = { world, assets, CFG, audioInfo, audioStatus };

@@ -17,6 +17,12 @@ desktop.ini
 # Node, if dependencies are ever added
 node_modules/
 
+# API keys. This repo is PUBLIC -- never commit credentials.
+.env
+.env.*
+!.env.example
+*.key
+
 # NOTE: assets/ IS committed on purpose, even though it is build output.
 # The game cannot run without it, the pipeline is deterministic so it never
 # produces spurious diffs, and committing it means a clone can be played
