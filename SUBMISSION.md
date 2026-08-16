@@ -6,6 +6,8 @@ tags: devchallenge, weekendchallenge, gamedev, javascript
 
 *This is a submission for the [DEV Weekend Challenge: Dog Days Edition](https://dev.to/devteam/join-our-dev-weekend-challenge-dog-days-edition-1000-in-prizes-across-five-winners-submissions-1g4i).*
 
+![Hot Dog title screen](https://raw.githubusercontent.com/Piwe/hot-dog-game/master/docs/screenshots/menu.png)
+
 ## What I Built
 
 **Hot Dog** is a browser game about a small corgi climbing between two mountains.
@@ -27,7 +29,7 @@ That downward spiral is the design. It's also the thing that nearly broke the ga
 
 Reach the top and the corgi gets a trophy and a red cape.
 
-![Gameplay: the corgi mid-climb with two vents building steam](docs/screenshots/gameplay.png)
+![Gameplay: the corgi mid-climb with two vents building steam](https://raw.githubusercontent.com/Piwe/hot-dog-game/master/docs/screenshots/gameplay.png)
 
 ## Demo
 
@@ -81,6 +83,13 @@ test('telegraph always outlasts the slowest jump, at every speed and agility', (
 });
 ```
 
+The speed slider is the only difficulty control, and it scales **vent cadence
+only** - it never touches jump speed or input handling, so the controls feel
+identical at every setting. Here it is pushed to FAST, with three vents
+erupting at once:
+
+![The speed slider at maximum, three vents erupting](https://raw.githubusercontent.com/Piwe/hot-dog-game/master/docs/screenshots/speed-slider.png)
+
 The other fairness rule: a rung **never** gets vents on both sides. There's always a survivable line, verified across 400 generated levels.
 
 ### The art fought back
@@ -91,11 +100,11 @@ Three things the source art couldn't give me:
 
 **The vent telegraph was unreadable.** The shipped "building steam" cloud differed from the idle cloud by a few small bubbles - invisible at gameplay size, and that frame is the player's *entire warning*. I rebuilt it as a 6-frame ramp by compositing a scaled, dimmed copy of the real eruption onto the cloud, so the warning grows in **size and brightness** and reads on shape alone (which also means it survives colour-blindness).
 
-![The rebuilt 6-frame vent ramp](docs/screenshots/vent-ramp.png)
+![The rebuilt 6-frame vent ramp](https://raw.githubusercontent.com/Piwe/hot-dog-game/master/docs/screenshots/vent-ramp.png)
 
 **One parallax layer was unkeyable.** The distant-peaks strip had its sky baked in, and its snow and clouds sat at the *same pale value* as that sky. Every threshold either kept a rectangular slab of sky - visible in-game as a hard-edged block floating in the valley - or ate the mountain tops. I stopped fighting it: only the mid strip keys cleanly, so the far and foreground layers are now restyled copies of that one good silhouette, desaturated and pushed toward the horizon colour for distance, darkened and blurred for foreground. That's what atmospheric perspective *is*, which is why it reads correctly.
 
-![Four parallax depths derived from one clean silhouette](docs/screenshots/parallax-layers.png)
+![Four parallax depths derived from one clean silhouette](https://raw.githubusercontent.com/Piwe/hot-dog-game/master/docs/screenshots/parallax-layers.png)
 
 **The mountain wall didn't exist.** The two-mountain painting is a picture, not a tileable texture - cropping it gave smeared boulders the size of the dog. So the wall is drawn procedurally from a palette sampled out of that same painting, every shape drawn at +/- one tile height so it's seamless by construction rather than by blending.
 
@@ -141,7 +150,7 @@ Derived moments - a six-ledge clean streak, struggling after repeated hits - are
 
 Unvoiced lines display as captions, which doubles as subtitles.
 
-![The commentator reacting to a steam blast](docs/screenshots/commentator.png)
+![The commentator reacting to a steam blast](https://raw.githubusercontent.com/Piwe/hot-dog-game/master/docs/screenshots/commentator.png)
 
 Gemini also drives the art gap-fill (`tools/art_gen.py`): a drawn jump cycle and a purpose-built foreground layer. Two problems the model can't solve on its own, handled in the tool:
 
