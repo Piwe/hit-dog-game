@@ -199,6 +199,37 @@ hits) are computed in the commentator, not the simulation - they are commentary,
 not game rules. The debug overlay (`` ` ``) shows which lines have fired, the
 current gap, and what was suppressed and why.
 
+### AI-generated art (Gemini)
+
+Two gaps the shipped sheets never covered:
+
+```bash
+python3 tools/art_gen.py --jump         # a real 5-frame jump cycle
+python3 tools/art_gen.py --foreground   # a purpose-drawn foreground layer
+python3 tools/art_gen.py --all --dry-run
+```
+
+Both are optional. With no generated frames the game uses what it does today -
+a jump faked from three shipped poses with squash and stretch, and a foreground
+restyled from the mid parallax layer. Generating simply upgrades it.
+
+Two problems the model cannot solve, handled in the tool:
+
+- **Transparency.** Image models return opaque images. Everything is generated
+  on a flat magenta field and chroma-keyed, with a despill pass to remove the
+  purple fringe keying always leaves. Magenta is safe here because nothing in
+  this art style is magenta.
+- **Consistency.** A jump cycle must be the *same* dog, matching art that
+  already shipped, so every request carries an existing sprite as a reference
+  image rather than relying on the prompt.
+
+Anchors for generated frames are **measured from the pixels** (the centroid of
+whatever touches the ground), never assumed - the renderer positions every
+sprite by its anchor, so a guessed one would misplace the dog on every ledge.
+They land in `assets/sprites/generated_anchors.json`, which `pack.py` merges.
+
+After generating, run `npm run assets` to repack.
+
 ### Layout
 
 ```

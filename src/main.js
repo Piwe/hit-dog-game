@@ -12,7 +12,7 @@ import {
   createWorld, resetWorld, step, drainEvents, requestJump, setSpeed, STATE,
 } from './game/world.js';
 import { renderScene, stepFx, addPop, toScreenY } from './render/scene.js';
-import { resetDogAnim } from './render/dogAnim.js';
+import { resetDogAnim, setDogFrames } from './render/dogAnim.js';
 import {
   setCommentary, stepCommentary, resetCommentary, hasCommentary, currentCaption,
   commentaryStatus,
@@ -65,6 +65,7 @@ function togglePause() {
 const assets = await loadAssets();
 // Generated audio is optional: if tools/audio_gen.py has not been run, this
 // resolves to zero samples and every cue falls back to synthesis.
+const leapFrames = setDogFrames(assets);   // 0 = use the squash/stretch fallback
 const audioInfo = await preloadAudio();
 // The commentator is optional too: with no commentary.json it stays silent,
 // and with lines but no clips it captions them instead of speaking.
@@ -180,5 +181,5 @@ startLoop({
 
 // handy for poking at a live run from the console
 window.__hotdog = {
-  world, assets, CFG, audioInfo, audioStatus, hasCommentary, currentCaption, commentaryStatus,
+  world, assets, CFG, audioInfo, audioStatus, hasCommentary, currentCaption, commentaryStatus, leapFrames,
 };

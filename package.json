@@ -9,6 +9,7 @@
     "assets": "python tools/slice.py && python tools/derive.py && python tools/pack.py",
     "preview": "python tools/preview.py",
     "audio": "python tools/audio_gen.py",
-    "commentary": "python tools/commentary_gen.py"
+    "commentary": "python tools/commentary_gen.py",
+    "art": "python tools/art_gen.py"
   }
 }

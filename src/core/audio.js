@@ -107,7 +107,7 @@ let musicWanted = false;
 export async function preloadAudio() {
   let manifest;
   try {
-    const r = await fetch(AUDIO_BASE + 'manifest.json');
+    const r = await fetch(AUDIO_BASE + 'manifest.json', { cache: 'no-cache' });
     if (!r.ok) return { sfx: 0, music: 0 };   // never generated: synth only
     manifest = await r.json();
   } catch (_) {
@@ -212,7 +212,7 @@ export const audioStatus = () => ({
 export async function preloadCommentary() {
   let manifest;
   try {
-    const r = await fetch(AUDIO_BASE + 'commentary.json');
+    const r = await fetch(AUDIO_BASE + 'commentary.json', { cache: 'no-cache' });
     if (!r.ok) return null;
     manifest = await r.json();
   } catch (_) {

@@ -426,8 +426,18 @@ def main():
     # them from reading as the same ridge drawn twice. Push them hard.
     far = restyle_mid(mid_keyed, scale=0.60, tint=horizon, amount=0.78,
                       blur=0.9, alpha=0.88, desat=0.7)
-    fore = restyle_mid(mid_keyed, scale=1.60, tint=(16, 24, 34), amount=0.80,
-                       blur=2.8, desat=0.5)
+    # A purpose-drawn foreground (tools/art_gen.py) wins if it exists; the
+    # restyled mid layer is the fallback that ships today.
+    drawn = os.path.join(IMAGES, "generated", "foreground.png")
+    if os.path.exists(drawn):
+        fg = Image.open(drawn).convert("RGBA")
+        fg = fg.resize((SCREEN_W, max(1, int(fg.height * SCREEN_W / fg.width))),
+                       Image.LANCZOS)
+        fore = seamless_x(fg)
+        print("foreground: using generated art")
+    else:
+        fore = restyle_mid(mid_keyed, scale=1.60, tint=(16, 24, 34), amount=0.80,
+                           blur=2.8, desat=0.5)
 
     for name, img, foot in (("1_far", far, 0.055),
                             ("2_mid", mid_keyed, 0.0),

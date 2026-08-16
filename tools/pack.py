@@ -13,6 +13,7 @@ Tiling textures are deliberately excluded: an atlas samples neighbouring
 frames at the edges, which shows up as bleeding seams on a repeated texture.
 Those ship as standalone images.
 """
+import binascii
 import json
 import os
 import sys
@@ -36,12 +37,22 @@ DERIVED_ANCHORS = {
     "vent_cool_1":  (0.50, 0.95),
     "vent_cool_2":  (0.50, 0.95),
     "ledge":        (0.50, 0.30),
+    "ui_slider_track": (0.50, 0.50),   # drawn centred by the HUD
 }
 
 
 def main():
     anchors = {name: tuple(a) for name, _s, _r, a in FRAMES}
     anchors.update(DERIVED_ANCHORS)
+
+    # tools/art_gen.py measures anchors off the generated pixels (feet
+    # centroid), so they override anything assumed here.
+    gen = os.path.join(SPR, "generated_anchors.json")
+    if os.path.exists(gen):
+        with open(gen, encoding="utf-8") as fh:
+            measured = json.load(fh)
+        anchors.update({k: tuple(v) for k, v in measured.items()})
+        print(f"generated anchors: {len(measured)} frame(s)")
 
     names = sorted(n[:-4] for n in os.listdir(SPR) if n.endswith(".png"))
     names = [n for n in names if n not in STANDALONE]
@@ -60,7 +71,13 @@ def main():
         ax, ay = anchors.get(n, (0.5, 0.5))
         frames[n] = {"x": px, "y": py, "w": im.width, "h": im.height,
                      "anchor": {"x": ax, "y": ay}}
-    atlas.save(os.path.join(ROOT, "assets", "atlas.png"))
+    atlas_path = os.path.join(ROOT, "assets", "atlas.png")
+    atlas.save(atlas_path)
+    # Content revision, so the client can cache-bust the image when the atlas
+    # changes. Without it a browser happily pairs a fresh atlas.json with a
+    # cached atlas.png and every sprite lands on the wrong pixels.
+    with open(atlas_path, "rb") as fh:
+        rev = f"{binascii.crc32(fh.read()) & 0xFFFFFFFF:08x}"
 
     standalone = {}
     for n in sorted(STANDALONE):
@@ -84,6 +101,7 @@ def main():
     with open(os.path.join(ROOT, "assets", "atlas.json"), "w") as f:
         json.dump({
             "image": "atlas.png",
+            "rev": rev,
             "size": {"w": pw, "h": ph},
             "note": "draw a frame at (x - w*anchor.x, y - h*anchor.y). Right-facing "
                     "dog frames are the left frames flipped in X, with anchor.x "

@@ -22,6 +22,27 @@ const anim = {
   airT: 0,
 };
 
+// A purpose-drawn jump cycle from tools/art_gen.py, if it was generated. Real
+// frames carry the motion themselves, so the squash and stretch that stands in
+// for them is dialled back rather than stacked on top.
+let leap = [];
+
+export function setDogFrames(assets) {
+  leap = [];
+  for (let i = 0; ; i++) {
+    const name = `dog_leap_${i}`;
+    if (!assets.frames[name]) break;
+    leap.push(name);
+  }
+  return leap.length;
+}
+
+export const hasLeapCycle = () => leap.length > 0;
+
+/** Frame for a point in the arc, 0..1. */
+const leapAt = (p) =>
+  leap[Math.min(leap.length - 1, Math.floor(p * leap.length))];
+
 /** Advance the animation clock. Call once per fixed step. */
 export function stepDogAnim(world, dtMs) {
   const s = world.dog.state;
@@ -66,6 +87,13 @@ export function dogPose(world) {
     // Lean into the direction of travel. A straight-up hop has dir 0 and so
     // gets pure squash and stretch with no rotation, which is correct.
     const dir = Math.sign(slotX(dog.to.side) - slotX(dog.from.side));
+
+    if (leap.length) {
+      // drawn frames: keep only a light lean and a touch of stretch
+      const rise = Math.cos(Math.PI * p);          // +1 launch, -1 landing
+      return shape(leapAt(p), 1 - 0.05 * rise, 1 + 0.07 * rise,
+                   -0.10 * rise * dir);
+    }
 
     if (p < 0.16) {                       // launch: uncoil, tallest stretch
       const k = p / 0.16;

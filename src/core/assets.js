@@ -17,21 +17,26 @@ function loadImage(src) {
 }
 
 export async function loadAssets() {
-  const meta = await fetch(BASE + 'atlas.json').then((r) => {
+  // no-cache forces revalidation: a stale manifest paired with a fresh atlas
+  // image misplaces every sprite, and looks like a rendering bug rather than a
+  // caching one.
+  const meta = await fetch(BASE + 'atlas.json', { cache: 'no-cache' }).then((r) => {
     if (!r.ok) throw new Error('atlas.json missing - run tools/pack.py');
     return r.json();
   });
 
-  const atlas = await loadImage(BASE + meta.image);
+  const v = meta.rev ? `?v=${meta.rev}` : '';
+  const atlas = await loadImage(BASE + meta.image + v);
 
   const standalone = {};
   for (const [name, info] of Object.entries(meta.standalone || {})) {
-    standalone[name] = await loadImage(BASE + info.file);
+    standalone[name] = await loadImage(BASE + info.file + v);
   }
 
   const parallax = [];
   for (const [name, info] of Object.entries(meta.parallax || {})) {
-    parallax.push({ name, factor: info.factor, img: await loadImage(BASE + info.file) });
+    parallax.push({ name, factor: info.factor,
+                    img: await loadImage(BASE + info.file + v) });
   }
   parallax.sort((a, b) => a.factor - b.factor);   // far to near
 
