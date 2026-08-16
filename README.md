@@ -3,6 +3,8 @@
 A browser game about a dog climbing two mountains, dodging steam vents, and
 collecting hot dogs on the way to a trophy and a red cape.
 
+**[Play it here](https://piwe.github.io/hot-dog-game/)** - no install, static page.
+
 ---
 
 ## The game

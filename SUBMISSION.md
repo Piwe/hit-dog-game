@@ -31,21 +31,23 @@ Reach the top and the corgi gets a trophy and a red cape.
 
 ## Demo
 
-**Play it:** `<-- PASTE YOUR GITHUB PAGES URL HERE -->`
+### [**>> Play Hot Dog in your browser <<**](https://piwe.github.io/hot-dog-game/)
+
+No install, no sign-up - it is a static page.
 
 Controls: `Left` / `Right` to jump, `Enter` to start, `` ` `` for a debug overlay, `M` to mute. Add `?seed=12345` to replay an exact climb.
 
 Or run it locally - no build step, no dependencies:
 
 ```bash
-git clone https://github.com/Piwe/hit-dog-game
-cd hit-dog-game
+git clone https://github.com/Piwe/hot-dog-game
+cd hot-dog-game
 python3 -m http.server 8080     # then open http://localhost:8080
 ```
 
 ## Code
 
-{% embed https://github.com/Piwe/hit-dog-game %}
+{% embed https://github.com/Piwe/hot-dog-game %}
 
 Roughly 2,000 lines of vanilla JavaScript across 14 modules, 1,800 lines of Python asset tooling, and 17 tests. **Zero runtime dependencies** - no framework, no build step, no `node_modules`.
 
